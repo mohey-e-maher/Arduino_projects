@@ -217,3 +217,80 @@ def sensor():
    lcd_byte(0x01,LCD_CMD)
 
 
+def readLine(line, characters):
+    global inputstring
+    global hidekey
+    GPIO.output(line, GPIO.HIGH)
+    time.sleep(0.02)
+    if(GPIO.input(C1) == 1):
+      inputstring = inputstring +characters[0]
+      hidekey = hidekey +"*"
+      lcd_string(hidekey,LCD_LINE_2)
+    elif(GPIO.input(C2) == 1):
+      inputstring = inputstring +characters[1]
+      hidekey = hidekey +"*"
+      lcd_string(hidekey,LCD_LINE_2)
+    elif(GPIO.input(C3) == 1):
+      inputstring = inputstring +characters[2]
+      hidekey = hidekey +"*"
+      lcd_string(hidekey,LCD_LINE_2)
+    elif(GPIO.input(C4) == 1):
+      if(characters[3] ==  "#"):
+       if(inputstring == secretkey):
+        lcd_string("valid person",LCD_LINE_2)
+        time.sleep(1)
+        lcd_byte(0x01,LCD_CMD)
+        lcd_string("system start",LCD_LINE_1)
+        lcd_string("now",LCD_LINE_2)
+        time.sleep(1)
+        lcd_byte(0x01,LCD_CMD) # 000001 Clear display
+	######################################
+        sensor()
+	####################################
+        lcd_string("",LCD_LINE_2)
+        inputstring = ""
+        hidekey= ""
+       else:
+        lcd_string("Unknown person",LCD_LINE_2)
+        time.sleep(1)
+        lcd_string("again",LCD_LINE_2)
+        inputstring = ""
+        hidekey= ""
+      else:
+       inputstring = inputstring +characters[3]
+       hidekey = hidekey +"*"
+       lcd_string(hidekey,LCD_LINE_2)
+    GPIO.output(line, GPIO.LOW)
+    time.sleep(0.02)
+
+   
+
+# Define delay between readings
+delay = 5
+lcd_init()
+lcd_string("welcome ",LCD_LINE_1)
+time.sleep(1)
+lcd_string("Enter Password ",LCD_LINE_1)
+time.sleep(1)
+while 1:
+   readLine(R1, ["7","8","9","/"])
+   readLine(R2, ["4","5","6","*"])
+   readLine(R3, ["1","2","3","-"])
+   readLine(R4, ["C","0","=","#"])
+
+
+'''
+#---CONFIG_END---
+
+# Main function
+def main () :
+# Setup
+ peripheral_setup()
+# Infinite loop
+ while 1 :
+  peripheral_loop()
+  pass
+# Command line execution
+if __name__ == '__main__' :
+   main()
+'''
